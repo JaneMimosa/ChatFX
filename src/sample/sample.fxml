@@ -5,6 +5,7 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+
 <?scenebuilder-stylesheet src/styles/style.css?>
 
 <VBox alignment="CENTER" cacheShape="false" centerShape="false" fillWidth="false" maxHeight="-Infinity"

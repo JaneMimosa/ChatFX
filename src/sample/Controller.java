@@ -7,7 +7,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 
 public class Controller {
+
     final String USERNAME = "Jane";
+
     @FXML
     TextArea textArea;
     @FXML

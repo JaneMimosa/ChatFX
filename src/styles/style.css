@@ -3,7 +3,6 @@
     -fx-font-size: 15;
     -fx-text-fill: purple;
 }
-
 #textArea {
     -fx-text-fill: black;
     -fx-control-inner-background: #dbdbdb;
