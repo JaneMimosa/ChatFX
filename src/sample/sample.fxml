@@ -7,31 +7,42 @@
 <?import javafx.scene.layout.*?>
 <?scenebuilder-stylesheet src/styles/style.css?>
 
-<VBox alignment="CENTER" cacheShape="false" centerShape="false" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" scaleShape="false" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
-  <stylesheets><URL value="@/styles/style.css" /></stylesheets>
-   <VBox.margin>
-      <Insets right="20.0" top="100.0" />
-   </VBox.margin>
-   <children>
-      <TextArea fx:id="textArea" cache="true" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="338.0" prefWidth="590.0" style="-fx-background-position: #ff0000;">
-         <VBox.margin>
-            <Insets />
-         </VBox.margin>
-         <cursor>
-            <Cursor fx:constant="DEFAULT" />
-         </cursor></TextArea>
-      <HBox alignment="CENTER" prefHeight="55.0" prefWidth="600.0">
-         <children>
-            <TextField fx:id="textField" alignment="TOP_LEFT" editable="true" onAction="#sendMsg" prefHeight="50.0" prefWidth="570.0" promptText="type your message...">
-               <HBox.margin>
-                  <Insets left="5.0" right="5.0" />
-               </HBox.margin></TextField>
-            <Button fx:id="sendBtn" alignment="CENTER" mnemonicParsing="false" onAction="#sendMsg" prefHeight="32.0" prefWidth="134.0" text="Enter">
-               <HBox.margin>
-                  <Insets right="5.0" />
-               </HBox.margin>
-            </Button>
-         </children>
-      </HBox>
-   </children>
+<VBox alignment="CENTER" cacheShape="false" centerShape="false" fillWidth="false" maxHeight="-Infinity"
+      maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0"
+      scaleShape="false" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="sample.Controller">
+    <stylesheets>
+        <URL value="@/styles/style.css"/>
+    </stylesheets>
+    <VBox.margin>
+        <Insets right="20.0" top="100.0"/>
+    </VBox.margin>
+    <children>
+        <TextArea fx:id="textArea" cache="true" editable="false" maxHeight="-Infinity" maxWidth="-Infinity"
+                  minHeight="-Infinity" minWidth="-Infinity" prefHeight="338.0" prefWidth="590.0"
+                  style="-fx-background-position: #ff0000;">
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+            <cursor>
+                <Cursor fx:constant="DEFAULT"/>
+            </cursor>
+        </TextArea>
+        <HBox alignment="CENTER" prefHeight="55.0" prefWidth="600.0">
+            <children>
+                <TextField fx:id="textField" alignment="TOP_LEFT" editable="true" onAction="#sendMsg" prefHeight="50.0"
+                           prefWidth="570.0" promptText="type your message...">
+                    <HBox.margin>
+                        <Insets left="5.0" right="5.0"/>
+                    </HBox.margin>
+                </TextField>
+                <Button fx:id="sendBtn" alignment="CENTER" mnemonicParsing="false" onAction="#sendMsg" prefHeight="32.0"
+                        prefWidth="134.0" text="Enter">
+                    <HBox.margin>
+                        <Insets right="5.0"/>
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
+    </children>
 </VBox>

@@ -12,10 +12,11 @@ public class Controller {
     TextArea textArea;
     @FXML
     TextField textField;
+
     @FXML
     void sendMsg() {
         textArea.appendText(USERNAME + ": " + textField.getText() + '\n');
         textField.clear();
         textField.requestFocus();
     }
-        }
+}
