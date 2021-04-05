@@ -5,42 +5,48 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?scenebuilder-stylesheet src/styles/style.css?>
 
-<VBox alignment="CENTER" cacheShape="false" centerShape="false" fillWidth="false" maxHeight="-Infinity"
-      maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0"
-      scaleShape="false" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="sample.Controller">
+<VBox alignment="CENTER" cacheShape="false" centerShape="false" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" scaleShape="false" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
     <stylesheets>
-        <URL value="@/styles/style.css"/>
+        <URL value="@/styles/style.css" />
     </stylesheets>
     <VBox.margin>
-        <Insets right="20.0" top="100.0"/>
+        <Insets right="20.0" top="100.0" />
     </VBox.margin>
     <children>
-        <TextArea fx:id="textArea" cache="true" editable="false" maxHeight="-Infinity" maxWidth="-Infinity"
-                  minHeight="-Infinity" minWidth="-Infinity" prefHeight="338.0" prefWidth="590.0"
-                  style="-fx-background-position: #ff0000;">
+        <HBox fx:id="upperPanel">
+            <TextField fx:id="loginField" prefHeight="25.0" prefWidth="150.0" promptText="login" HBox.hgrow="ALWAYS">
+            <HBox.margin>
+               <Insets bottom="12.0" left="-195.0" right="10.0" />
+            </HBox.margin></TextField>
+            <PasswordField fx:id="passwordField" onAction="#tryToAuth" promptText="password">
+            <HBox.margin>
+               <Insets />
+            </HBox.margin></PasswordField>
+            <Button fx:id="signIn" onAction="#tryToAuth" prefHeight="25.0" prefWidth="74.0" text="Sign In">
+            <HBox.margin>
+               <Insets left="10.0" />
+            </HBox.margin></Button>
+        </HBox>
+        <TextArea fx:id="textArea" cache="true" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="338.0" prefWidth="590.0">
             <VBox.margin>
-                <Insets/>
+                <Insets />
             </VBox.margin>
             <cursor>
-                <Cursor fx:constant="DEFAULT"/>
+                <Cursor fx:constant="DEFAULT" />
             </cursor>
         </TextArea>
-        <HBox alignment="CENTER" prefHeight="55.0" prefWidth="600.0">
+        <HBox fx:id="bottomPanel" alignment="CENTER" managed="false" prefHeight="55.0" prefWidth="600.0" visible="false">
             <children>
-                <TextField fx:id="textField" alignment="TOP_LEFT" editable="true" onAction="#sendMsg" prefHeight="50.0"
-                           prefWidth="570.0" promptText="type your message...">
+                <TextField fx:id="textField" alignment="TOP_LEFT" editable="true" onAction="#sendMsg" prefHeight="50.0" prefWidth="570.0" promptText="type your message...">
                     <HBox.margin>
-                        <Insets left="5.0" right="5.0"/>
+                        <Insets left="5.0" right="5.0" />
                     </HBox.margin>
                 </TextField>
-                <Button fx:id="sendBtn" alignment="CENTER" mnemonicParsing="false" onAction="#sendMsg" prefHeight="32.0"
-                        prefWidth="134.0" text="Enter">
+                <Button fx:id="sendBtn" alignment="CENTER" mnemonicParsing="false" onAction="#sendMsg" prefHeight="32.0" prefWidth="134.0" text="Enter">
                     <HBox.margin>
-                        <Insets right="5.0"/>
+                        <Insets right="5.0" />
                     </HBox.margin>
                 </Button>
             </children>
