@@ -3,9 +3,12 @@
     -fx-font-size: 15;
     -fx-text-fill: purple;
 }
-
 #textArea {
     -fx-text-fill: black;
     -fx-control-inner-background: #dbdbdb;
     -fx-font-size: 15;
+}
+#signIn {
+-fx-font-family: "Comic Sans MS";
+    -fx-text-fill: purple;
 }
