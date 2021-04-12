@@ -1,7 +1,10 @@
 package sample;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -9,13 +12,18 @@ import javafx.scene.layout.HBox;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
-public class Controller {
+public class Controller implements Initializable {
 
     @FXML
-    TextArea textArea;
+    TextArea chatArea;
     @FXML
     TextField textField;
     @FXML
@@ -26,6 +34,8 @@ public class Controller {
     TextField loginField;
     @FXML
     PasswordField passwordField;
+    @FXML
+    ListView<String> clientList;
 
     Socket socket;
     DataInputStream in;
@@ -35,21 +45,30 @@ public class Controller {
 
     private boolean isAuthorize;
 
+    private List<TextArea> textAreas;
+
     public void setAuthorized(boolean authorized) {
         this.isAuthorize = authorized;
 
-        if(!isAuthorize) {
+        if (!isAuthorize) {
             upperPanel.setVisible(true);
             upperPanel.setManaged(true);
 
             bottomPanel.setVisible(false);
             bottomPanel.setManaged(false);
+
+            clientList.setVisible(false);
+            clientList.setManaged(false);
+
         } else {
             upperPanel.setVisible(false);
             upperPanel.setManaged(false);
 
             bottomPanel.setVisible(true);
             bottomPanel.setManaged(true);
+
+            clientList.setVisible(true);
+            clientList.setManaged(true);
         }
     }
 
@@ -65,6 +84,7 @@ public class Controller {
     }
 
 
+
     public void connect() {
         try {
             socket = new Socket(ADDRESS, PORT);
@@ -72,24 +92,45 @@ public class Controller {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
+            setAuthorized(false);
+
             new Thread(() -> {
                 try {
-                    while(true) {
-                        String str = in.readUTF();
-                        if("/auth-OK".equals(str)) {
-                            setAuthorized(true);
-                            textArea.clear();
-                            break;
-                        } else {
-                            textArea.appendText(str + "\n");
+                    while (true) {
+                        try {
+                            String str = in.readUTF();
+                            if ("/auth-OK".equals(str)) {
+                                setAuthorized(true);
+                                chatArea.clear();
+                                break;
+                            } else {
+                                for (TextArea ta : textAreas) {
+                                    ta.appendText(str + "\n");
+                                }
+                            }
+                        } catch (EOFException e) {
+                            socket.close();
                         }
                     }
-                    while(true) {
+                    while (true) {
                         String str = in.readUTF();
-                        if("/serverClosed".equals(str)) {
+                        if ("/serverClosed".equals(str)) {
                             break;
                         }
-                        textArea.appendText(str + "\n");
+                        if ("/clientlist".equals(str)) {
+                            String tokens[] = str.split(" ");
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    clientList.getItems().clear();
+                                    for (int i = 1; i < tokens.length; i++) {
+                                        clientList.getItems().add(tokens[i]);
+                                    }
+                                }
+                            });
+                        } else {
+                            chatArea.appendText(str + "\n");
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -99,21 +140,26 @@ public class Controller {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     setAuthorized(false);
                 }
             }).start();
         } catch (IOException e) {
             e.printStackTrace();
-            textArea.appendText("Connection denied");
+            chatArea.appendText("Connection denied");
         }
-        }
+    }
 
     public void tryToAuth(ActionEvent actionEvent) {
-        if(socket == null || socket.isClosed()) {
+        if (socket == null || socket.isClosed()) {
             connect();
         }
         try {
-            out.writeUTF("/auth " + loginField.getText() + " " + passwordField.getText() );
+            out.writeUTF("/auth " + loginField.getText() + " " + passwordField.getText());
             loginField.clear();
             passwordField.clear();
         } catch (IOException e) {
@@ -122,11 +168,25 @@ public class Controller {
     }
 
     public void disconnect() {
-        try {
-            connect();
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (socket != null) {
+            if (!socket.isClosed()) {
+                try {
+                    out.writeUTF("/end");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            setAuthorized(false);
         }
+    }
+}
+    @Override
+    public void initialize(URL location, ResourceBundle bundle) {
+        textAreas = new ArrayList<>();
+        textAreas.add(chatArea);
     }
 }
