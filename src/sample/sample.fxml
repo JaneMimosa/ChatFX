@@ -29,7 +29,11 @@
                <Insets left="10.0" />
             </HBox.margin></Button>
         </HBox>
-        <TextArea fx:id="textArea" cache="true" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="338.0" prefWidth="590.0">
+
+    <HBox VBox.vgrow="ALWAYS">
+    <children>
+        <VBox HBox.hgrow="ALWAYS">
+        <TextArea fx:id="chatArea" cache="true" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="338.0" prefWidth="590.0">
             <VBox.margin>
                 <Insets />
             </VBox.margin>
@@ -50,6 +54,10 @@
                     </HBox.margin>
                 </Button>
             </children>
+        </HBox>
+        </VBox>
+            <ListView fx:id="clientList"  prefHeight="200"/>
+        </children>
         </HBox>
     </children>
 </VBox>

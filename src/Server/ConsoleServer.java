@@ -21,7 +21,7 @@ public class ConsoleServer {
 
             while (true) {
                 socket = server.accept();
-                System.out.printf("Client [%s] connected\n", socket.getInetAddress());
+                System.out.printf("Client [%s] try to connect\n", socket.getInetAddress());
                 new ClientHandler(this, socket);
             }
 
@@ -29,7 +29,12 @@ public class ConsoleServer {
             e.printStackTrace();
         } finally {
             try {
+                System.out.printf("Client [%s] disconnected\n", socket.getInetAddress());
                 socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
                 server.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -40,27 +45,50 @@ public class ConsoleServer {
 
     public void subscribe(ClientHandler client) {
         users.add(client);
+        System.out.println(String.format("Client [%s] connected\n", client.getNickname()));
+        broadcastClientsList();
     }
 
     public void unsubscribe(ClientHandler client) {
         users.remove(client);
+        System.out.println(String.format("Client [%s] disconnected\n", client.getNickname()));
+        broadcastClientsList();
     }
 
-    public void broadcastMessage(String str) {
+    public void broadcastMessage(ClientHandler from, String str) {
+        AuthService.saveChatHistory(str);
         for (ClientHandler c : users) {
-            c.sendMsg(str);
+            if (!AuthService.checkBlackList(c.getNickname(), from.getNickname())) {
+                if (!AuthService.checkBlackList(from.getNickname(), c.getNickname())) {
+                    c.sendMsg(str);
+                }
+            }
         }
     }
 
     public void sendPrivateMsg(ClientHandler nickFrom, String nickTo, String msg) {
         for (ClientHandler c : users) {
             if(c.getNickname().equals(nickTo)) {
-                if (!nickFrom.getNickname().equals(nickTo)) {
-                    c.sendMsg(nickFrom.getNickname() + ": " + "[Private message]" + msg);
-                    nickFrom.sendMsg(nickFrom.getNickname() + ": " + "[Private message]" + msg);
+                if(!AuthService.checkBlackList(c.getNickname(), nickFrom.getNickname())) {
+                    if(!AuthService.checkBlackList(nickFrom.getNickname(), c.getNickname())) {
+                        if (!nickFrom.getNickname().equals(nickTo)) {
+                            c.sendMsg(nickFrom.getNickname() + ": " + "[Private message]" + msg);
+                            nickFrom.sendMsg(nickFrom.getNickname() + ": " + "[Private message]" + msg);
+                            return;
+                        } else {
+                            nickFrom.sendMsg("You can't send private message to yourself");
+                            return;
+                        }
+                    } else {
+                        nickFrom.sendMsg("User " + nickTo + " is blocked. Unblock to send messages");
+                    }
+                } else {
+                    nickFrom.sendMsg("You can't send messages to user " + nickTo);
+                    return;
                 }
             }
         }
+        nickFrom.sendMsg("User " + nickTo + " isn't in a chat room");
     }
 
     public synchronized boolean isNickBusy(String nick) {
@@ -71,5 +99,17 @@ public class ConsoleServer {
         }
         return false;
     }
+    public void broadcastClientsList() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("/clientList ");
+        for(ClientHandler c : users) {
+            sb.append(c.getNickname() + " ");
+        }
 
+        String out = sb.toString();
+
+        for(ClientHandler c : users) {
+            c.sendMsg(out);
+        }
+    }
 }
