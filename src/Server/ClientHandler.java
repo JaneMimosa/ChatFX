@@ -102,6 +102,12 @@ public class ClientHandler {
                             if("/clientlist".equals(str)) {
                                 server.broadcastClientsList();
                             }
+                            if(str.startsWith("/changenickname")) {
+                                String[] tokens = str.split(" ");
+                                AuthService.changeNick(nickname, tokens[1]);
+                                setNickname(tokens[1]);
+                                this.sendMsg("Your nickname has been changed");
+                            }
                         } else {
                             server.broadcastMessage(this, nickname + ": " + str);
                         }
