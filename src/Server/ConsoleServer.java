@@ -56,11 +56,11 @@ public class ConsoleServer {
     }
 
     public void broadcastMessage(ClientHandler from, String str) {
-        AuthService.saveChatHistory(str);
         for (ClientHandler c : users) {
             if (!AuthService.checkBlackList(c.getNickname(), from.getNickname())) {
                 if (!AuthService.checkBlackList(from.getNickname(), c.getNickname())) {
                     c.sendMsg(str);
+                    c.saveHistory(str);
                 }
             }
         }
@@ -72,8 +72,13 @@ public class ConsoleServer {
                 if(!AuthService.checkBlackList(c.getNickname(), nickFrom.getNickname())) {
                     if(!AuthService.checkBlackList(nickFrom.getNickname(), c.getNickname())) {
                         if (!nickFrom.getNickname().equals(nickTo)) {
+
                             c.sendMsg(nickFrom.getNickname() + ": " + "[Private message]" + msg);
                             nickFrom.sendMsg(nickFrom.getNickname() + ": " + "[Private message]" + msg);
+
+                            c.saveHistory(nickFrom.getNickname() + ": " + "[Private message]" + msg);
+                            nickFrom.saveHistory(nickFrom.getNickname() + ": " + "[Private message]" + msg);
+
                             return;
                         } else {
                             nickFrom.sendMsg("You can't send private message to yourself");

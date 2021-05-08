@@ -1,8 +1,6 @@
 package Server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.List;
@@ -61,7 +59,7 @@ public class ClientHandler {
                 }
 
                 if(!isExit) {
-                    sendMsg(AuthService.showChatHistory());
+                    showHistory("history_" + nickname + ".txt");
                     server.broadcastMessage(this, nickname + " joined chat");
                     while (true) {
                         String str = in.readUTF();
@@ -156,5 +154,58 @@ public class ClientHandler {
         }
     }
 
+    public void saveHistory(String msg) {
+        File historyFile = new File("history_" + nickname + ".txt");
+        if (!historyFile.exists()) {
+            try {
+                historyFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try (BufferedWriter bufferedWriter = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(historyFile, true)));) {
+            bufferedWriter.write(msg + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+        public void showHistory(String historyFile) {
+        int lastLines = 100;
+        String line;
+        int length = 0;
+            try(BufferedReader reader = new BufferedReader(new FileReader(historyFile));){
+                while (reader.readLine() != null) {
+                    length++;
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            try(BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(historyFile)));) {
+                if(length <= lastLines) {
+                    while ((line = bufferedReader.readLine()) != null) {
+                        sendMsg(line);
+                    }
+                }
+                if(length > lastLines) {
+                    int n = length - lastLines;
+                    for (int i = 0; i < n; i++) {
+                        bufferedReader.readLine();
+                    }
+                    while ((line = bufferedReader.readLine()) != null) {
+                        sendMsg(line);
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+}
 }
