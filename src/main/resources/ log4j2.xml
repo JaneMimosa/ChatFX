@@ -6,7 +6,7 @@
     <Appenders>
         <File name="MyFile" fileName="logs/app.log">
             <BurstFilter level="FATAL" rate="16" maxBurst="100"/>
-
+<!--            <JsonLayout/>-->
         </File>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%-5p %d{yyyy-MM-dd HH:mm:ss} [%t] %C (%F:%L) - %m%n"/>

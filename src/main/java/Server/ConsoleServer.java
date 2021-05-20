@@ -9,12 +9,10 @@ import java.net.Socket;
 import java.util.Vector;
 
 
-
 public class ConsoleServer {
     private Vector<ClientHandler> users;
 
     private static final Logger LOG = LogManager.getLogger(ConsoleServer.class.getName());
-
 
     public ConsoleServer() {
         users = new Vector<>();
@@ -24,10 +22,8 @@ public class ConsoleServer {
         try {
             AuthService.connect();
             server = new ServerSocket(6000);
-//            System.out.println("Server started");
+            System.out.println("Server started");
             LOG.info("Server started");
-
-
 
 
             while (true) {
@@ -79,9 +75,9 @@ public class ConsoleServer {
 
     public void sendPrivateMsg(ClientHandler nickFrom, String nickTo, String msg) {
         for (ClientHandler c : users) {
-            if(c.getNickname().equals(nickTo)) {
-                if(!AuthService.checkBlackList(c.getNickname(), nickFrom.getNickname())) {
-                    if(!AuthService.checkBlackList(nickFrom.getNickname(), c.getNickname())) {
+            if (c.getNickname().equals(nickTo)) {
+                if (!AuthService.checkBlackList(c.getNickname(), nickFrom.getNickname())) {
+                    if (!AuthService.checkBlackList(nickFrom.getNickname(), c.getNickname())) {
                         if (!nickFrom.getNickname().equals(nickTo)) {
 
                             c.sendMsg(nickFrom.getNickname() + ": " + "[Private message]" + msg);
@@ -108,23 +104,24 @@ public class ConsoleServer {
     }
 
     public synchronized boolean isNickBusy(String nick) {
-        for(ClientHandler c : users) {
+        for (ClientHandler c : users) {
             if (c.getNickname().equals(nick)) {
                 return true;
             }
         }
         return false;
     }
+
     public void broadcastClientsList() {
         StringBuilder sb = new StringBuilder();
         sb.append("/clientList ");
-        for(ClientHandler c : users) {
+        for (ClientHandler c : users) {
             sb.append(c.getNickname() + " ");
         }
 
         String out = sb.toString();
 
-        for(ClientHandler c : users) {
+        for (ClientHandler c : users) {
             c.sendMsg(out);
         }
     }
