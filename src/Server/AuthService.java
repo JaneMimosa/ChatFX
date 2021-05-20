@@ -120,4 +120,14 @@ public class AuthService {
         String out = sb.toString();
         return out;
     }
+
+    public static void changeNick(String nick, String newNick) {
+        String query = String.format("UPDATE users SET nickname = '%s' WHERE nickname='%s'", newNick, nick);
+        try {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
