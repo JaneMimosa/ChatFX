@@ -8,17 +8,24 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.io.IOException;
+
 
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("sample.fxml"));
-        Parent root = loader.load();
-        primaryStage.setTitle("ChatFX");
-        Scene scene = new Scene(root, 600, 400);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        try {
+            Parent root = loader.load();
+
+            primaryStage.setTitle("ChatFX");
+            Scene scene = new Scene(root, 600, 400);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent we) {
                 Controller controller = loader.getController();
@@ -26,8 +33,4 @@ public class Main extends Application {
             }
         });
     }
-
-        public static void main (String[]args){
-        launch(args);
-        }
-    }
+}

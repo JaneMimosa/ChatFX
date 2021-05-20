@@ -10,7 +10,9 @@ public class ClientHandler {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+
     private String nickname;
+    private String login;
 
     private List<String> blackList;
 
@@ -33,6 +35,7 @@ public class ClientHandler {
                     if (str.startsWith("/auth")) {
                         String[] tokens = str.split(" ");
                         String nick = AuthService.getNicknameByLoginAndPassword(tokens[1], tokens[2]);
+                        setLogin(tokens[1]);
                         if(nick != null) {
                             if (!server.isNickBusy(nick)) {
                                 sendMsg("/auth-OK");
@@ -59,7 +62,7 @@ public class ClientHandler {
                 }
 
                 if(!isExit) {
-                    showHistory("history_" + nickname + ".txt");
+                    showHistory("src/History/history_" + login + ".txt");
                     server.broadcastMessage(this, nickname + " joined chat");
                     while (true) {
                         String str = in.readUTF();
@@ -138,13 +141,6 @@ public class ClientHandler {
         }
     }
 
-    private void setNickname(String nick) {
-        this.nickname = nick;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
 
     public void sendMsg(String str) {
         try {
@@ -155,7 +151,7 @@ public class ClientHandler {
     }
 
     public void saveHistory(String msg) {
-        File historyFile = new File("history_" + nickname + ".txt");
+        File historyFile = new File("src/History/history_" + login + ".txt");
         if (!historyFile.exists()) {
             try {
                 historyFile.createNewFile();
@@ -179,8 +175,6 @@ public class ClientHandler {
                 while (reader.readLine() != null) {
                     length++;
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -202,10 +196,20 @@ public class ClientHandler {
                         sendMsg(line);
                     }
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    private void setNickname(String nick) {
+        this.nickname = nick;
+    }
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
 }

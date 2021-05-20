@@ -12,7 +12,6 @@ import javafx.scene.layout.HBox;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
@@ -43,14 +42,14 @@ public class Controller implements Initializable {
     public static final String ADDRESS = "localhost";
     public static final int PORT = 6000;
 
-    private boolean isAuthorize;
+    private boolean isAuthorized;
 
     private List<TextArea> textAreas;
 
     public void setAuthorized(boolean authorized) {
-        this.isAuthorize = authorized;
+        this.isAuthorized = authorized;
 
-        if (!isAuthorize) {
+        if (!isAuthorized) {
             upperPanel.setVisible(true);
             upperPanel.setManaged(true);
 
@@ -97,7 +96,6 @@ public class Controller implements Initializable {
             new Thread(() -> {
                 try {
                     while (true) {
-                        try {
                             String str = in.readUTF();
                             if ("/auth-OK".equals(str)) {
                                 setAuthorized(true);
@@ -108,9 +106,6 @@ public class Controller implements Initializable {
                                     ta.appendText(str + "\n");
                                 }
                             }
-                        } catch (EOFException e) {
-                            socket.close();
-                        }
                     }
                     while (true) {
                         String str = in.readUTF();
@@ -137,11 +132,6 @@ public class Controller implements Initializable {
                 } finally {
                     try {
                         socket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        in.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -180,12 +170,12 @@ public class Controller implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            setAuthorized(false);
         }
     }
 }
     @Override
     public void initialize(URL location, ResourceBundle bundle) {
+        setAuthorized(false);
         textAreas = new ArrayList<>();
         textAreas.add(chatArea);
     }

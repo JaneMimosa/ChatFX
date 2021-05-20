@@ -1,12 +1,20 @@
 package Server;
 
-import java.io.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
+
+
 public class ConsoleServer {
     private Vector<ClientHandler> users;
+
+    private static final Logger LOG = LogManager.getLogger(ConsoleServer.class.getName());
+
 
     public ConsoleServer() {
         users = new Vector<>();
@@ -16,7 +24,10 @@ public class ConsoleServer {
         try {
             AuthService.connect();
             server = new ServerSocket(6000);
-            System.out.println("Server started");
+//            System.out.println("Server started");
+            LOG.info("Server started");
+
+
 
 
             while (true) {
