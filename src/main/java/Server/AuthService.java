@@ -51,7 +51,6 @@ public class AuthService {
                         "WHERE EXISTS(SELECT 1 FROM blacklist\n" +
                         "       WHERE blocker = '%s' AND blocked = '%s')", blocker, blocked);
         try {
-            PreparedStatement ps = connection.prepareStatement(query);
             ResultSet rs = statement.executeQuery(query);
             if (rs.next()) {
                 return true;

@@ -1,5 +1,6 @@
-package sample;
+package FXMLApp;
 
+import Server.ConsoleServer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,6 +10,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -45,6 +48,7 @@ public class Controller implements Initializable {
     private boolean isAuthorized;
 
     private List<TextArea> textAreas;
+    private static final Logger LOG = LogManager.getLogger(ConsoleServer.class.getName());
 
     public void setAuthorized(boolean authorized) {
         this.isAuthorized = authorized;
@@ -113,7 +117,7 @@ public class Controller implements Initializable {
                             break;
                         }
                         if ("/clientlist".equals(str)) {
-                            String tokens[] = str.split(" ");
+                            String[] tokens = str.split(" ");
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
@@ -128,6 +132,7 @@ public class Controller implements Initializable {
                         }
                     }
                 } catch (IOException e) {
+                    LOG.error("Client disconnected abruptly");
                     e.printStackTrace();
                 } finally {
                     try {
@@ -141,6 +146,7 @@ public class Controller implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
             chatArea.appendText("Connection denied");
+            LOG.fatal("Server is closed");
         }
     }
 

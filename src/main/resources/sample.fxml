@@ -7,9 +7,9 @@
 <?import javafx.scene.layout.*?>
 <?scenebuilder-stylesheet src/styles/style.css?>
 
-<VBox alignment="CENTER" cacheShape="false" centerShape="false" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" scaleShape="false" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="sample.Controller">
+<VBox alignment="CENTER" cacheShape="false" centerShape="false" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" scaleShape="false" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="FXMLApp.Controller">
     <stylesheets>
-        <URL value="@/styles/style.css" />
+        <URL value="@styles/style.css" />
     </stylesheets>
     <VBox.margin>
         <Insets right="20.0" top="100.0" />
