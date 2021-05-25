@@ -1,5 +1,8 @@
 package Server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -10,9 +13,13 @@ public class ClientHandler {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+
     private String nickname;
+    private String login;
 
     private List<String> blackList;
+
+    private static final Logger LOG = LogManager.getLogger(ClientHandler.class.getName());
 
 
     public ClientHandler(ConsoleServer server, Socket socket) {
@@ -33,6 +40,7 @@ public class ClientHandler {
                     if (str.startsWith("/auth")) {
                         String[] tokens = str.split(" ");
                         String nick = AuthService.getNicknameByLoginAndPassword(tokens[1], tokens[2]);
+                        setLogin(tokens[1]);
                         if(nick != null) {
                             if (!server.isNickBusy(nick)) {
                                 sendMsg("/auth-OK");
@@ -41,9 +49,11 @@ public class ClientHandler {
                                 break;
                             } else {
                                 sendMsg("User already logged");
+                                LOG.info("Client {} tried to log in under already logged user", socket.getInetAddress());
                             }
                         } else {
                             sendMsg("Wrong login or password");
+                            LOG.info("Client {} entered wrong password or login", socket.getInetAddress());
                         }
                         }
                     if("/end".equals(str)) {
@@ -51,6 +61,7 @@ public class ClientHandler {
                         break;
                     }
                     } catch (SocketTimeoutException e) {
+                        LOG.info("Client {} did not log in in time", socket.getInetAddress());
                         isExit = true;
                         sendMsg("Time out");
                         socket.close();
@@ -59,7 +70,7 @@ public class ClientHandler {
                 }
 
                 if(!isExit) {
-                    showHistory("history_" + nickname + ".txt");
+                    showHistory("src/History/history_" + login + ".txt");
                     server.broadcastMessage(this, nickname + " joined chat");
                     while (true) {
                         String str = in.readUTF();
@@ -67,15 +78,14 @@ public class ClientHandler {
                             if ("/end".equals(str)) {
                                 server.broadcastMessage(this, nickname + " left chat");
                                 out.writeUTF("/serverClosed");
-                                System.out.printf("Client [%s] - disconnected\n", socket.getInetAddress());
                                 break;
                             }
                             if (str.startsWith("@")) {
                                 String[] tokens = str.split(" ", 2);
-                                if (AuthService.doesUserExist(tokens[0].substring(1, tokens[0].length()))) {
-                                    server.sendPrivateMsg(this, tokens[0].substring(1, tokens[0].length()), tokens[1]);
+                                if (AuthService.doesUserExist(tokens[0].substring(1))) {
+                                    server.sendPrivateMsg(this, tokens[0].substring(1), tokens[1]);
                                 } else {
-                                    sendMsg("User " + tokens[0].substring(1, tokens[0].length()) + " doesn't exist");
+                                    sendMsg("User " + tokens[0].substring(1) + " doesn't exist");
                                 }
 
                             }
@@ -85,6 +95,7 @@ public class ClientHandler {
                                     int result = AuthService.blackListAdd(nickname, tokens[1]);
                                     if(result > 0) {
                                         sendMsg("You have added user " + tokens[1] + " to blacklist");
+                                        LOG.info("Client {} blacklisted {}", login, tokens[1]);
                                     } else  {
                                         sendMsg("User " + tokens[1] + " already blocked");
                                     }
@@ -96,6 +107,7 @@ public class ClientHandler {
                                 String[] tokens = str.split(" ");
                                 AuthService.blackListRemove(nickname, tokens[1]);
                                 sendMsg("User " + tokens[1] + " has been removed from blacklist");
+                                LOG.info("Client {} removed from blacklist {}", login, tokens[1]);
                             }
                             if("/clientlist".equals(str)) {
                                 server.broadcastClientsList();
@@ -105,14 +117,17 @@ public class ClientHandler {
                                 AuthService.changeNick(nickname, tokens[1]);
                                 setNickname(tokens[1]);
                                 this.sendMsg("Your nickname has been changed");
+                                LOG.info("Client {} changed their nickname", login);
                             }
                         } else {
                             server.broadcastMessage(this, nickname + ": " + str);
                         }
-                        System.out.printf("Client [%s]: %s\n", socket.getInetAddress(), str);
+                        //System.out.printf("Client [%s]: %s\n", socket.getInetAddress(), str);
+
                     }
                 }
             } catch (IOException e) {
+                LOG.error("Exception: '{}' While handling client {} with InetAddress {}", e.toString(), login, socket.getInetAddress());
                 e.printStackTrace();
             } finally {
                 try {
@@ -138,13 +153,6 @@ public class ClientHandler {
         }
     }
 
-    private void setNickname(String nick) {
-        this.nickname = nick;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
 
     public void sendMsg(String str) {
         try {
@@ -155,18 +163,20 @@ public class ClientHandler {
     }
 
     public void saveHistory(String msg) {
-        File historyFile = new File("history_" + nickname + ".txt");
+        File historyFile = new File("src/History/history_" + login + ".txt");
         if (!historyFile.exists()) {
             try {
                 historyFile.createNewFile();
             } catch (IOException e) {
+                LOG.error("Exception: '{}' Couldn't create history file for client {}", e.toString(), login);
                 e.printStackTrace();
             }
         }
         try (BufferedWriter bufferedWriter = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(historyFile, true)));) {
+                new OutputStreamWriter(new FileOutputStream(historyFile, true)))) {
             bufferedWriter.write(msg + "\n");
         } catch (IOException e) {
+            LOG.error("Exception: '{}' Couldn't append message to history file for client {}", e.toString(),login);
             e.printStackTrace();
         }
     }
@@ -175,19 +185,19 @@ public class ClientHandler {
         int lastLines = 100;
         String line;
         int length = 0;
-            try(BufferedReader reader = new BufferedReader(new FileReader(historyFile));){
+            try(BufferedReader reader = new BufferedReader(new FileReader(historyFile))){
                 while (reader.readLine() != null) {
                     length++;
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                LOG.debug(length);
             } catch (IOException e) {
+                LOG.error("Exception: '{}' Error in reading file {}", e.toString(), historyFile);
                 e.printStackTrace();
             }
 
 
             try(BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(historyFile)));) {
+                    new InputStreamReader(new FileInputStream(historyFile)))) {
                 if(length <= lastLines) {
                     while ((line = bufferedReader.readLine()) != null) {
                         sendMsg(line);
@@ -195,6 +205,7 @@ public class ClientHandler {
                 }
                 if(length > lastLines) {
                     int n = length - lastLines;
+                    LOG.debug(n);
                     for (int i = 0; i < n; i++) {
                         bufferedReader.readLine();
                     }
@@ -202,10 +213,24 @@ public class ClientHandler {
                         sendMsg(line);
                     }
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
+                LOG.error("Exception: '{}' Error in reading file {}", e.toString(), historyFile);
                 e.printStackTrace();
             }
 }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    private void setNickname(String nick) {
+        this.nickname = nick;
+    }
+    public void setLogin(String login) {
+        this.login = login;
+    }
+    public String getLogin() {
+        return login;
+    }
+
 }
