@@ -19,7 +19,7 @@ public class ClientHandler {
 
     private List<String> blackList;
 
-    private static final Logger LOG = LogManager.getLogger(ConsoleServer.class.getName());
+    private static final Logger LOG = LogManager.getLogger(ClientHandler.class.getName());
 
 
     public ClientHandler(ConsoleServer server, Socket socket) {
@@ -49,9 +49,11 @@ public class ClientHandler {
                                 break;
                             } else {
                                 sendMsg("User already logged");
+                                LOG.info("Client {} tried to log in under already logged user", socket.getInetAddress());
                             }
                         } else {
                             sendMsg("Wrong login or password");
+                            LOG.info("Client {} entered wrong password or login", socket.getInetAddress());
                         }
                         }
                     if("/end".equals(str)) {
@@ -59,6 +61,7 @@ public class ClientHandler {
                         break;
                     }
                     } catch (SocketTimeoutException e) {
+                        LOG.info("Client {} did not log in in time", socket.getInetAddress());
                         isExit = true;
                         sendMsg("Time out");
                         socket.close();
@@ -120,11 +123,11 @@ public class ClientHandler {
                             server.broadcastMessage(this, nickname + ": " + str);
                         }
                         //System.out.printf("Client [%s]: %s\n", socket.getInetAddress(), str);
-                        LOG.trace("Client {}: {}", login, str);
 
                     }
                 }
             } catch (IOException e) {
+                LOG.error("Exception: '{}' While handling client {} with InetAddress {}", e.toString(), login, socket.getInetAddress());
                 e.printStackTrace();
             } finally {
                 try {
@@ -165,6 +168,7 @@ public class ClientHandler {
             try {
                 historyFile.createNewFile();
             } catch (IOException e) {
+                LOG.error("Exception: '{}' Couldn't create history file for client {}", e.toString(), login);
                 e.printStackTrace();
             }
         }
@@ -172,6 +176,7 @@ public class ClientHandler {
                 new OutputStreamWriter(new FileOutputStream(historyFile, true)))) {
             bufferedWriter.write(msg + "\n");
         } catch (IOException e) {
+            LOG.error("Exception: '{}' Couldn't append message to history file for client {}", e.toString(),login);
             e.printStackTrace();
         }
     }
@@ -184,7 +189,9 @@ public class ClientHandler {
                 while (reader.readLine() != null) {
                     length++;
                 }
+                LOG.debug(length);
             } catch (IOException e) {
+                LOG.error("Exception: '{}' Error in reading file {}", e.toString(), historyFile);
                 e.printStackTrace();
             }
 
@@ -198,6 +205,7 @@ public class ClientHandler {
                 }
                 if(length > lastLines) {
                     int n = length - lastLines;
+                    LOG.debug(n);
                     for (int i = 0; i < n; i++) {
                         bufferedReader.readLine();
                     }
@@ -206,6 +214,7 @@ public class ClientHandler {
                     }
                 }
             } catch (IOException e) {
+                LOG.error("Exception: '{}' Error in reading file {}", e.toString(), historyFile);
                 e.printStackTrace();
             }
 }

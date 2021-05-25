@@ -1,6 +1,5 @@
 package FXMLApp;
 
-import Server.ConsoleServer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -48,7 +47,7 @@ public class Controller implements Initializable {
     private boolean isAuthorized;
 
     private List<TextArea> textAreas;
-    private static final Logger LOG = LogManager.getLogger(ConsoleServer.class.getName());
+    private static final Logger LOG = LogManager.getLogger(Controller.class.getName());
 
     public void setAuthorized(boolean authorized) {
         this.isAuthorized = authorized;
@@ -132,7 +131,7 @@ public class Controller implements Initializable {
                         }
                     }
                 } catch (IOException e) {
-                    LOG.error("Client disconnected abruptly");
+                    LOG.error("Exception: '{}' in method connect while running thread", e.toString());
                     e.printStackTrace();
                 } finally {
                     try {
@@ -146,7 +145,7 @@ public class Controller implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
             chatArea.appendText("Connection denied");
-            LOG.fatal("Server is closed");
+            LOG.error("Exception: '{}' in method connect", e.toString());
         }
     }
 
@@ -159,6 +158,7 @@ public class Controller implements Initializable {
             loginField.clear();
             passwordField.clear();
         } catch (IOException e) {
+            LOG.error("Exception: '{}' in method tryToAuth",e.toString());
             e.printStackTrace();
         }
     }

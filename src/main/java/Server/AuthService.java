@@ -1,5 +1,8 @@
 package Server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.*;
 import java.util.Vector;
 
@@ -7,12 +10,14 @@ public class AuthService {
     private static Connection connection;
     private static Statement statement;
     private static Vector<ClientHandler> users;
+    private static final Logger LOG = LogManager.getLogger(AuthService.class.getName());
 
     public static void connect() {
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:main.db");
         } catch (ClassNotFoundException | SQLException e) {
+            LOG.fatal("Exception: '{}' couldn't connect to DataBase", e.toString());
             e.printStackTrace();
         }
     }
@@ -26,6 +31,7 @@ public class AuthService {
                 return rs.getString("nickname");
             }
         } catch (SQLException e) {
+            LOG.error("Exception: '{}' in method 'getNicknameByLoginAndPassword'", e.toString());
             e.printStackTrace();
         }
         return null;
@@ -40,6 +46,7 @@ public class AuthService {
                 return true;
             }
         } catch (SQLException e) {
+            LOG.error("Exception: '{}' in method doesUserExist", e.toString());
             e.printStackTrace();
         }
         return false;
@@ -56,6 +63,7 @@ public class AuthService {
                 return true;
             }
         } catch (SQLException e) {
+            LOG.error("Exception: '{}' in method 'checkBlackList'", e.toString());
             e.printStackTrace();
         }
         return false;
@@ -78,6 +86,7 @@ public class AuthService {
                 ps.setString(2, blocked);
                 return ps.executeUpdate();
             } catch (SQLException e) {
+                LOG.error("Exception: '{}' in method 'blackListAdd'", e.toString());
                 e.printStackTrace();
             }
         }
@@ -91,6 +100,7 @@ public class AuthService {
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.executeUpdate();
             } catch (SQLException e) {
+                LOG.error("Exception: '{}' in method 'blackListRemove'", e.toString());
                 e.printStackTrace();
             }
         }
@@ -102,6 +112,7 @@ public class AuthService {
             PreparedStatement ps = connection.prepareStatement(query);
             ps.executeUpdate();
         } catch (SQLException e) {
+            LOG.error("Exception: '{}' in method 'changeNick'", e.toString());
             e.printStackTrace();
         }
     }
