@@ -1,4 +1,4 @@
-package sample;
+package FXMLApp;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -9,10 +9,11 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
@@ -43,14 +44,15 @@ public class Controller implements Initializable {
     public static final String ADDRESS = "localhost";
     public static final int PORT = 6000;
 
-    private boolean isAuthorize;
+    private boolean isAuthorized;
 
     private List<TextArea> textAreas;
+    private static final Logger LOG = LogManager.getLogger(Controller.class.getName());
 
     public void setAuthorized(boolean authorized) {
-        this.isAuthorize = authorized;
+        this.isAuthorized = authorized;
 
-        if (!isAuthorize) {
+        if (!isAuthorized) {
             upperPanel.setVisible(true);
             upperPanel.setManaged(true);
 
@@ -97,7 +99,6 @@ public class Controller implements Initializable {
             new Thread(() -> {
                 try {
                     while (true) {
-                        try {
                             String str = in.readUTF();
                             if ("/auth-OK".equals(str)) {
                                 setAuthorized(true);
@@ -108,9 +109,6 @@ public class Controller implements Initializable {
                                     ta.appendText(str + "\n");
                                 }
                             }
-                        } catch (EOFException e) {
-                            socket.close();
-                        }
                     }
                     while (true) {
                         String str = in.readUTF();
@@ -118,7 +116,7 @@ public class Controller implements Initializable {
                             break;
                         }
                         if ("/clientlist".equals(str)) {
-                            String tokens[] = str.split(" ");
+                            String[] tokens = str.split(" ");
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
@@ -133,15 +131,11 @@ public class Controller implements Initializable {
                         }
                     }
                 } catch (IOException e) {
+                    LOG.error("Exception: '{}' in method connect while running thread", e.toString());
                     e.printStackTrace();
                 } finally {
                     try {
                         socket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        in.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -151,6 +145,7 @@ public class Controller implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
             chatArea.appendText("Connection denied");
+            LOG.error("Exception: '{}' in method connect", e.toString());
         }
     }
 
@@ -163,6 +158,7 @@ public class Controller implements Initializable {
             loginField.clear();
             passwordField.clear();
         } catch (IOException e) {
+            LOG.error("Exception: '{}' in method tryToAuth",e.toString());
             e.printStackTrace();
         }
     }
@@ -180,12 +176,12 @@ public class Controller implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            setAuthorized(false);
         }
     }
 }
     @Override
     public void initialize(URL location, ResourceBundle bundle) {
+        setAuthorized(false);
         textAreas = new ArrayList<>();
         textAreas.add(chatArea);
     }
